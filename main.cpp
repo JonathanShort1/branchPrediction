@@ -5,6 +5,8 @@
 
 #include "predictor.h"
 #include "always_taken.h"
+#include "twobit.h"
+#include "gshare.h"
 
 using namespace std;
 
@@ -25,13 +27,14 @@ int predict(const char *filename, int predictor, int size)
             }
         case 2:
             {
-                // AlwaysTaken twoBit(size, infile);
-                // p = &twoBit;
+                TwoBitPredictor tbp(size, infile);
+                tbp.predict();
+                tbp.printResults();
                 break;
             }
         case 3:
             {
-                // AlwaysTaken gshare(size, infile);
+                GShare gshare(size, infile);
                 // p = &gshare;
                 break;
             }
@@ -58,7 +61,7 @@ int main(int argc, char *argv[])
     ss << "-t\n\t trace file to use" << endl;
 
     stringstream usage;
-    usage << "Uasge (must supply all options): ./main.out -p 2 -p 512 -t <path/to/trace/file>" << endl;
+    usage << "Uasge (must supply all options): ./main.out -p 2 -s 512 -t <path/to/trace/file>" << endl;
     usage << "Usage: ./main.out -h (for help)" << endl;
     
     int tflag = 0;

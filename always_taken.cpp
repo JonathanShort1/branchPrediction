@@ -10,7 +10,7 @@ AlwaysTaken::AlwaysTaken(int size, std::ifstream& traceFile)
 // MODIFIERS
 void AlwaysTaken::predict()
 {
-    unsigned long long addr;
+    uint64_t addr;
     int taken;
     while (d_traceFile >> addr >> taken) {
         if (!taken) {

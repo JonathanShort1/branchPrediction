@@ -3,8 +3,10 @@
 
 #include <fstream>
 
+
 class Predictor {
     protected:
+        // DATA
         int             d_totalPredictions;
         int             d_mispredictions;
         int             d_size;
