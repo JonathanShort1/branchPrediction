@@ -46,10 +46,10 @@ void GShare::updateCountTable(const int index, const int taken)
 GShare::GShare(int size, std::ifstream& traceFile)
 : Predictor(size, traceFile)
 , d_table(4096, 0)
-, d_history(4096, 0)
+, d_globalRegister(0)
 , d_mask(0x00000000000004ff)
+, d_grMask(0x00000000000000ff)
 {
-
 }
 
 // MODIFIERS
@@ -57,17 +57,18 @@ void GShare::predict()
 {
     uint64_t addr;
     int taken;
-    int xor;
-    int global;
+    int xOr;
     int index;
     while (d_traceFile >> addr >> taken) {
         index = addr & d_mask;
 
         // sort global history
+        d_globalRegister >>= 1;
+        d_globalRegister |= taken;
 
         // XOR index with global history
-        xor = addr ^ global;
-        updateCountTable(xor, taken);
+        xOr = index ^ (d_globalRegister & d_grMask);
+        updateCountTable(xOr, taken);
 
         ++d_totalPredictions;
     }

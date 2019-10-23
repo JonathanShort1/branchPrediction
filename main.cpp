@@ -35,7 +35,8 @@ int predict(const char *filename, int predictor, int size)
         case 3:
             {
                 GShare gshare(size, infile);
-                // p = &gshare;
+                gshare.predict();
+                gshare.printResults();
                 break;
             }
         case 4:
