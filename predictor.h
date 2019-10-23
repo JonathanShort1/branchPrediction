@@ -12,6 +12,15 @@ class Predictor {
         int             d_size;
         std::ifstream&  d_traceFile;
 
+        uint64_t d_bit_masks[6] = {
+            0x00000000000001ff, // 512 entries
+            0x00000000000003ff, // 1024 entries
+            0x00000000000007ff, // 2048 entries
+            0x0000000000000fff, // 4096 entries
+            0x0000000000001fff, // 8192 entries
+            0x0000000000003fff  // 16385 entries
+        };
+
     public:
         // CREATORS
         Predictor(int size, std::ifstream& traceFile);

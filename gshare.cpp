@@ -1,5 +1,7 @@
 #include "gshare.h"
 
+#include <iostream>
+
 // -----------------------------------------------------------------------------
 //                      GShare PRIVATE FUNCTIONS
 // -----------------------------------------------------------------------------
@@ -45,11 +47,30 @@ void GShare::updateCountTable(const int index, const int taken)
 // CREATORS
 GShare::GShare(int size, std::ifstream& traceFile)
 : Predictor(size, traceFile)
-, d_table(4096, 0)
+, d_table(size, 0)
 , d_globalRegister(0)
-, d_mask(0x00000000000004ff)
 , d_grMask(0x00000000000000ff)
 {
+    switch(size) {
+        case 512:
+            d_mask = 0;
+            break;
+        case 1024:
+            d_mask = 1;
+            break;
+        case 2048:
+            d_mask = 2;
+            break;
+        case 4096:
+            d_mask = 3;
+            break;
+        case 8192:
+            d_mask = 4;
+            break;
+        case 16384:
+            d_mask = 5;
+            break;
+    }
 }
 
 // MODIFIERS
@@ -59,17 +80,30 @@ void GShare::predict()
     int taken;
     int xOr;
     int index;
+    int min = 10000000;
+    int max = 0;
     while (d_traceFile >> addr >> taken) {
-        index = addr & d_mask;
+        index = addr & d_bit_masks[d_mask];
+        std::cout << index << std::endl;
+
+        if (min > index) {
+            min =  index;
+        }
+
+        if (max < index) {
+            max = index;
+        }
 
         // sort global history
         d_globalRegister >>= 1;
         d_globalRegister |= taken;
 
         // XOR index with global history
-        xOr = index ^ (d_globalRegister & d_grMask);
+        xOr = index ^ ((d_globalRegister & d_grMask) << (d_mask + 1));
         updateCountTable(xOr, taken);
 
         ++d_totalPredictions;
     }
+    std::cout << "min: " << min << std::endl;
+    std::cout << "max: " << max << std::endl;
 }

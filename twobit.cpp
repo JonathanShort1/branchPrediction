@@ -1,4 +1,5 @@
 #include "twobit.h"
+
 #include <iostream>
 
 // -----------------------------------------------------------------------------
@@ -23,6 +24,12 @@ TwoBitPredictor::TwoBitPredictor(int size, std::ifstream& traceFile)
         case 4096:
             d_mask = 3;
             break;
+        case 8192:
+            d_mask = 4;
+            break;
+        case 16384:
+            d_mask = 5;
+            break;
     }
 }
 
@@ -32,7 +39,7 @@ void TwoBitPredictor::predict()
     uint64_t addr;
     int taken;
     while (d_traceFile >> addr >> taken) {
-        int index = addr & bit_masks[d_mask];
+        int index = addr & d_bit_masks[d_mask];
         std::cout << index << std::endl;
         switch(d_table[index]) {
             case 0:
