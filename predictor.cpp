@@ -1,6 +1,7 @@
 #include "predictor.h"
 
 #include <iostream>
+#include <iomanip>
 
 // -----------------------------------------------------------------------------
 //                      Predictor PUBLIC FUNCTIONS
@@ -25,8 +26,11 @@ void Predictor::printResults()
     std::cout
         << "Total predictions: " << d_totalPredictions << std::endl
         << "Number of mispredictions: " << d_mispredictions << std::endl
-        << "Misprediction rate: "
-        << static_cast<double>(d_mispredictions) / static_cast<double>(d_totalPredictions)
+        << "Misprediction rate: " << std::fixed << std::setprecision(2)
+        << 100 * (static_cast<double>(d_mispredictions) / d_totalPredictions)
+        << "%" << std::endl
+        << "Percentage of buckets_used: "
+        << 100 * (static_cast<double>(d_buckets_used.size()) / d_size) << "%"
         << std::endl;
 }
 

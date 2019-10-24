@@ -30,6 +30,9 @@ TwoBitPredictor::TwoBitPredictor(int size, std::ifstream& traceFile)
         case 16384:
             d_mask = 5;
             break;
+        case 524288:
+            d_mask = 6;
+            break;
     }
 }
 
@@ -40,7 +43,7 @@ void TwoBitPredictor::predict()
     int taken;
     while (d_traceFile >> addr >> taken) {
         int index = addr & d_bit_masks[d_mask];
-        std::cout << index << std::endl;
+        d_buckets_used.emplace(index);
         switch(d_table[index]) {
             case 0:
                 if (taken) {
@@ -50,7 +53,7 @@ void TwoBitPredictor::predict()
                 break;
             case 1:
                 if (taken) {
-                    d_table[index] = 2;
+                    d_table[index] = 3;
                     ++d_mispredictions;
                 } else {
                     d_table[index] = 0;
@@ -60,7 +63,7 @@ void TwoBitPredictor::predict()
                 if (taken) {
                     d_table[index] = 3;
                 } else {
-                    d_table[index] = 1;
+                    d_table[index] = 0;
                     ++d_mispredictions;
                 }
                 break;

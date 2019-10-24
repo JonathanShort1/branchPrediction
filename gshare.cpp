@@ -1,6 +1,7 @@
 #include "gshare.h"
 
 #include <iostream>
+#include <bitset>
 
 // -----------------------------------------------------------------------------
 //                      GShare PRIVATE FUNCTIONS
@@ -17,7 +18,7 @@ void GShare::updateCountTable(const int index, const int taken)
             break;
         case 1:
             if (taken) {
-                d_table[index] = 2;
+                d_table[index] = 3;
                 ++d_mispredictions;
             } else {
                 d_table[index] = 0;
@@ -27,7 +28,7 @@ void GShare::updateCountTable(const int index, const int taken)
             if (taken) {
                 d_table[index] = 3;
             } else {
-                d_table[index] = 1;
+                d_table[index] = 0;
                 ++d_mispredictions;
             }
             break;
@@ -49,7 +50,6 @@ GShare::GShare(int size, std::ifstream& traceFile)
 : Predictor(size, traceFile)
 , d_table(size, 0)
 , d_globalRegister(0)
-, d_grMask(0x00000000000000ff)
 {
     switch(size) {
         case 512:
@@ -70,6 +70,9 @@ GShare::GShare(int size, std::ifstream& traceFile)
         case 16384:
             d_mask = 5;
             break;
+        case 524288:
+            d_mask = 6;
+            break;
     }
 }
 
@@ -80,30 +83,23 @@ void GShare::predict()
     int taken;
     int xOr;
     int index;
-    int min = 10000000;
-    int max = 0;
     while (d_traceFile >> addr >> taken) {
         index = addr & d_bit_masks[d_mask];
-        std::cout << index << std::endl;
-
-        if (min > index) {
-            min =  index;
-        }
-
-        if (max < index) {
-            max = index;
-        }
-
-        // sort global history
-        d_globalRegister >>= 1;
-        d_globalRegister |= taken;
 
         // XOR index with global history
-        xOr = index ^ ((d_globalRegister & d_grMask) << (d_mask + 1));
+        int lower = (d_globalRegister &  d_bit_masks[d_mask]);
+        // std::cout << std::bitset<16>(lower) << std::endl;
+        // std::cout << std::bitset<16>(index) << std::endl;
+        xOr = index ^ lower;
+        // std::cout << std::bitset<16>(xOr)  << std::endl;
+        // std::cout << std::endl;
+        d_buckets_used.emplace(xOr);
         updateCountTable(xOr, taken);
+
+        // sort global history
+        d_globalRegister <<= 1;
+        d_globalRegister |= taken;
 
         ++d_totalPredictions;
     }
-    std::cout << "min: " << min << std::endl;
-    std::cout << "max: " << max << std::endl;
 }

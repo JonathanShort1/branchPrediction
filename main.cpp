@@ -12,11 +12,7 @@ using namespace std;
 
 int predict(const char *filename, int predictor, int size)
 {
-    cout << "predictor: " << predictor << endl;
-    cout << "size: " << size << endl;
-    cout << "filename: " << filename << endl;
     ifstream infile(filename);
-
     switch (predictor) {
         case 1:
             {
