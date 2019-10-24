@@ -9,7 +9,7 @@
 // CREATORS
 TwoBitPredictor::TwoBitPredictor(int size, std::ifstream& traceFile)
 : Predictor(size, traceFile)
-, d_table(size, 0)
+, d_table(size, 3)
 {
     switch(size) {
         case 512:
