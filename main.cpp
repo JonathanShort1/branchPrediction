@@ -7,10 +7,11 @@
 #include "always_taken.h"
 #include "twobit.h"
 #include "gshare.h"
+#include "profile.h"
 
 using namespace std;
 
-int predict(const char *filename, int predictor, int size)
+int predict(const char *filename, const char *csv_file, int predictor, int size)
 {
     ifstream infile(filename);
     switch (predictor) {
@@ -37,8 +38,10 @@ int predict(const char *filename, int predictor, int size)
             }
         case 4:
             {
-                // AlwaysTaken profiled(size, infile);
-                // p = &profiled;
+                ifstream csv(csv_file);
+                Profile pro(size, infile, csv);
+                pro.predict();
+                pro.printResults();
                 break;
             }
         default:
@@ -66,12 +69,13 @@ int main(int argc, char *argv[])
     int pflag = 0;
 
     char *filename = NULL;
+    char *csv = NULL;
     int predictor = 1;
     int size = 1024;
 
     opterr = 0;
     int c;
-    while ((c = getopt (argc, argv, "hp:s:t:")) != -1) {
+    while ((c = getopt (argc, argv, "hp:s:t:c:")) != -1) {
         switch (c)
         {
             case 'h':
@@ -90,6 +94,9 @@ int main(int argc, char *argv[])
                 tflag = 1;
                 filename = optarg;
                 break;
+            case 'c':
+                csv = optarg;
+                break;
             case ':':
             case '?':
             default:
@@ -101,7 +108,7 @@ int main(int argc, char *argv[])
     }
 
     if (tflag && sflag && pflag) {
-        return predict(filename, predictor, size);
+        return predict(filename, csv, predictor, size);
     } else {
         cout << usage.str();
     }
