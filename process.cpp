@@ -4,27 +4,29 @@ using namespace std;
 struct branch {
     int taken;
     int total;
+    int addr_count;
 };
 
 void process(const char *filename, const char *csv_file)
 {
     ifstream infile(filename);
     ifstream csv(csv_file);
-    map<uint64_t, branch> m;
-    typedef map<uint64_t, branch>::iterator It;
+    map<int, branch> m;
+    typedef map<int, branch>::iterator It;
 
     int mask = 0x0000ffff;
 
     uint64_t addr;
     uint64_t taken;
-    uint64_t index;
+    int addr_count = 0;
     while (infile >> addr >> taken) {
-        index = addr & mask;
         if (m.find(addr) == m.end()) {
             branch b;
             b.taken = 0;
             b.total = 0;
+            b.addr_count = addr_count;
             m.emplace(addr, b);
+            ++addr_count;
         }
 
         It it = m.find(addr);
@@ -36,13 +38,13 @@ void process(const char *filename, const char *csv_file)
     infile.close();
 
     ofstream out("process.csv");
-    out << "addr,taken,total,bias" << endl;
+    out << "addr_count,taken,total,bias" << endl;
     for (auto const& x : m) {
         double acc = static_cast<double>(x.second.taken) / static_cast<double>(x.second.total);
         if (0 <= acc && acc <= 0.05 || 0.95 <= acc && acc <= 1) {
-            out << x.first << "," << x.second.taken << "," << x.second.total << "," << 0 << endl;
+            out << x.second.addr_count << "," << x.second.taken << "," << x.second.total << "," << 0 << endl;
         } else {
-            out << x.first << "," << x.second.taken << "," << x.second.total << "," << 1 <<endl;
+            out << x.second.addr_count << "," << x.second.taken << "," << x.second.total << "," << 1 <<endl;
         }
     }
     out.close();

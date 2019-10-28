@@ -91,7 +91,7 @@ void Profile::buildMap()
     d_csv >> temp;
     while (d_csv >> line) { 
         row.clear();
-        //getline(d_csv, line);
+        
         std::stringstream s(line);
         while (std::getline(s, word, ',')) {
             row.push_back(word); 
